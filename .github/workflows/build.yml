@@ -17,13 +17,22 @@ jobs:
 
       - name: Install Dependencies & Build Client
         run: |
+          # 1. 安装根目录服务端依赖
+          npm ci
+          
+          # 2. 进入 client 目录编译前端
+          cd client
           npm ci
           npm run build
+          cd ..
+          
+          # 3. 清除服务端开发依赖以节省体积
           npm prune --production
 
       - name: Create Zip Package
         run: |
-          zip -r abs-wispbyte.zip index.js package.json client/ node_modules/ server/
+          # 将 index.js、服务端代码、前端产物(client)及依赖打包
+          zip -r abs-wispbyte.zip index.js package.json client/ node_modules/ server/ || zip -r abs-wispbyte.zip index.js package.json client/ node_modules/
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
