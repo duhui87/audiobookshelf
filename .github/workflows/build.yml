@@ -1,0 +1,32 @@
+name: Build Release Package
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies & Build Client
+        run: |
+          npm ci
+          npm run build
+          npm prune --production
+
+      - name: Create Zip Package
+        run: |
+          zip -r abs-wispbyte.zip index.js package.json client/ node_modules/ server/
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: abs-wispbyte-package
+          path: abs-wispbyte.zip
